@@ -5,6 +5,7 @@ import (
 	"net/rpc"
 	"sudoku/common"
 	"sudoku/utils"
+	"time"
 )
 
 func main() {
@@ -13,7 +14,12 @@ func main() {
 		fmt.Println("Error dialing:", err)
 		return
 	}
-	defer client.Close()
+	defer func(client *rpc.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
 
 	request := common.SudokuRequest{
 		Grid: [common.N][common.N]int{
@@ -30,12 +36,22 @@ func main() {
 	}
 
 	var response common.SudokuResponse
+	n := 100 // Número de requisições
+	totalRTT := 0.0
 
-	err = client.Call("SudokuService.SolveSudoku", request, &response)
-	if err != nil {
-		fmt.Println("Error calling remote procedure:", err)
-		return
+	for i := 0; i < n; i++ {
+		start := time.Now()
+		err = client.Call("SudokuService.SolveSudoku", request, &response)
+		if err != nil {
+			fmt.Println("Error calling remote procedure:", err)
+			return
+		}
+		elapsed := time.Since(start).Seconds()
+		totalRTT += elapsed
 	}
+
+	avgRTT := totalRTT / float64(n)
+	fmt.Printf("Average RTT using Go RPC: %f seconds\n", avgRTT)
 
 	if response.Success {
 		fmt.Println("Solved Sudoku:")

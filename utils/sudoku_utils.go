@@ -4,7 +4,7 @@ import "fmt"
 
 const N = 9
 
-func isSafe(grid *[N][N]int, row, col, num int) bool {
+func isSafe(grid [N][N]int, row, col, num int) bool {
 	for x := 0; x < N; x++ {
 		if grid[row][x] == num {
 			return false
@@ -30,8 +30,7 @@ func isSafe(grid *[N][N]int, row, col, num int) bool {
 	return true
 }
 
-
-func SolveSudoku(grid *[N][N]int) bool {
+func SolveSudoku(grid [N][N]int) bool {
 	var row, col int
 	empty := false
 	for i := 0; i < N; i++ {
@@ -62,7 +61,6 @@ func SolveSudoku(grid *[N][N]int) bool {
 	}
 	return false
 }
-
 
 func PrintGrid(grid [N][N]int) {
 	for r := 0; r < N; r++ {

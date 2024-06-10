@@ -6,6 +6,7 @@ import (
 	"net"
 	"sudoku/common"
 	"sudoku/utils"
+	"time"
 )
 
 func main() {
@@ -14,7 +15,12 @@ func main() {
 		fmt.Println("Error dialing:", err)
 		return
 	}
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+
+		}
+	}(conn)
 
 	encoder := gob.NewEncoder(conn)
 	decoder := gob.NewDecoder(conn)
@@ -33,18 +39,29 @@ func main() {
 		},
 	}
 
-	err = encoder.Encode(request)
-	if err != nil {
-		fmt.Println("Error encoding request:", err)
-		return
+	var response common.SudokuResponse
+	n := 100 // Número de requisições
+	totalRTT := 0.0
+
+	for i := 0; i < n; i++ {
+		start := time.Now()
+		err = encoder.Encode(request)
+		if err != nil {
+			fmt.Println("Error encoding request:", err)
+			return
+		}
+
+		err = decoder.Decode(&response)
+		if err != nil {
+			fmt.Println("Error decoding response:", err)
+			return
+		}
+		elapsed := time.Since(start).Seconds()
+		totalRTT += elapsed
 	}
 
-	var response common.SudokuResponse
-	err = decoder.Decode(&response)
-	if err != nil {
-		fmt.Println("Error decoding response:", err)
-		return
-	}
+	avgRTT := totalRTT / float64(n)
+	fmt.Printf("Average RTT using Sockets: %f seconds\n", avgRTT)
 
 	if response.Success {
 		fmt.Println("Solved Sudoku:")
@@ -52,5 +69,4 @@ func main() {
 	} else {
 		fmt.Println("No solution exists")
 	}
-
 }

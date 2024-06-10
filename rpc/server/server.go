@@ -23,13 +23,21 @@ func (s *SudokuService) SolveSudoku(req common.SudokuRequest, res *common.Sudoku
 
 func main() {
 	sudokuService := new(SudokuService)
-	rpc.Register(sudokuService)
+	err := rpc.Register(sudokuService)
+	if err != nil {
+		return
+	}
 	listener, err := net.Listen("tcp", ":1234")
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 		return
 	}
-	defer listener.Close()
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+
+		}
+	}(listener)
 	fmt.Println("Serving RPC server on port 1234")
 	rpc.Accept(listener)
 }
