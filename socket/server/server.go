@@ -7,8 +7,14 @@ import (
 	"sudoku/common"
 	"sudoku/utils"
 )
+
 func handleConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+
+		}
+	}(conn)
 	decoder := gob.NewDecoder(conn)
 	encoder := gob.NewEncoder(conn)
 
