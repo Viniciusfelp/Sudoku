@@ -18,27 +18,29 @@ func handleConnection(conn net.Conn) {
 	decoder := gob.NewDecoder(conn)
 	encoder := gob.NewEncoder(conn)
 
-	var request common.SudokuRequest
-	var response common.SudokuResponse
+	for {
+		var request common.SudokuRequest
+		var response common.SudokuResponse
 
-	err := decoder.Decode(&request)
-	if err != nil {
-		fmt.Println("Error decoding request:", err)
-		return
-	}
+		err := decoder.Decode(&request)
+		if err != nil {
+			fmt.Println("Error decoding request:", err)
+			return
+		}
 
-	grid := request.Grid
-	if utils.SolveSudoku(&grid) {
-		response.SolvedGrid = grid
-		response.Success = true
-	} else {
-		response.Success = false
-	}
+		grid := request.Grid
+		if utils.SolveSudoku(&grid) {
+			response.SolvedGrid = grid
+			response.Success = true
+		} else {
+			response.Success = false
+		}
 
-	err = encoder.Encode(&response)
-	if err != nil {
-		fmt.Println("Error encoding response:", err)
-		return
+		err = encoder.Encode(&response)
+		if err != nil {
+			fmt.Println("Error encoding response:", err)
+			return
+		}
 	}
 }
 
@@ -48,7 +50,12 @@ func main() {
 		fmt.Println("Error starting server:", err)
 		return
 	}
-	defer listener.Close()
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+
+		}
+	}(listener)
 	fmt.Println("Server is listening on port 1234")
 
 	for {

@@ -15,12 +15,7 @@ func main() {
 		fmt.Println("Error dialing:", err)
 		return
 	}
-	defer func(conn net.Conn) {
-		err := conn.Close()
-		if err != nil {
-
-		}
-	}(conn)
+	defer conn.Close()
 
 	encoder := gob.NewEncoder(conn)
 	decoder := gob.NewDecoder(conn)
