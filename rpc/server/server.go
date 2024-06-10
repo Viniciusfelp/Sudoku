@@ -12,7 +12,7 @@ type SudokuService struct{}
 
 func (s *SudokuService) SolveSudoku(req common.SudokuRequest, res *common.SudokuResponse) error {
 	grid := req.Grid
-	if utils.SolveSudoku(grid) {
+	if utils.SolveSudoku(&grid) {
 		res.SolvedGrid = grid
 		res.Success = true
 	} else {

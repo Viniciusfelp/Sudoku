@@ -7,7 +7,6 @@ import (
 	"sudoku/common"
 	"sudoku/utils"
 )
-
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	decoder := gob.NewDecoder(conn)
@@ -23,7 +22,7 @@ func handleConnection(conn net.Conn) {
 	}
 
 	grid := request.Grid
-	if utils.SolveSudoku(grid) {
+	if utils.SolveSudoku(&grid) {
 		response.SolvedGrid = grid
 		response.Success = true
 	} else {
