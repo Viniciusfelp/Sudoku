@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:1234")
+	conn, err := net.Dial("tcp", "localhost:8080")
 	if err != nil {
 		fmt.Println("Error dialing:", err)
 		return
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	var response common.SudokuResponse
-	n := 100 // Número de requisições
+	n := 10000 // Número de requisições
 	totalRTT := 0.0
 
 	for i := 0; i < n; i++ {
@@ -53,15 +53,15 @@ func main() {
 		}
 		elapsed := time.Since(start).Seconds()
 		totalRTT += elapsed
+		if response.Success {
+			fmt.Println("Solved Sudoku:")
+			utils.PrintGrid(response.SolvedGrid)
+		} else {
+			fmt.Println("No solution exists")
+		}
 	}
 
 	avgRTT := totalRTT / float64(n)
 	fmt.Printf("Average RTT using Sockets: %f seconds\n", avgRTT)
 
-	if response.Success {
-		fmt.Println("Solved Sudoku:")
-		utils.PrintGrid(response.SolvedGrid)
-	} else {
-		fmt.Println("No solution exists")
-	}
 }

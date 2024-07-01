@@ -1,9 +1,28 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"sudoku/common"
+)
 
 const N = 9
 
+func BuildSudokuRequest() common.SudokuRequest {
+	grid := [common.N][common.N]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+	return common.SudokuRequest{
+		Grid: grid,
+	}
+}
 func isSafe(grid *[N][N]int, row, col, num int) bool {
 	for x := 0; x < N; x++ {
 		if grid[row][x] == num {
@@ -69,4 +88,5 @@ func PrintGrid(grid [N][N]int) {
 		}
 		fmt.Printf("\n")
 	}
+
 }

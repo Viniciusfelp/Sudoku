@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package sudoku;
+
+option go_package = "proto/sudoku";
+
+service SudokuSolver {
+  rpc SolveSudoku (SudokuRequest) returns (SudokuResponse);
+}
+
+message SudokuRequest {
+  repeated int32 grid = 1;
+}
+
+message SudokuResponse {
+  repeated int32 solvedGrid = 1;
+  bool success = 2;
+}
