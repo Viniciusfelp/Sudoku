@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.4.0
 // - protoc             v5.27.1
-// source: proto/sudoku.proto
+// source: sudoku.proto
 
 package sudoku
 
@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	SudokuSolver_SolveSudoku_FullMethodName = "/sudoku.SudokuSolver/SolveSudoku"
+	SudokuSolver_SolveSudoku_FullMethodName             = "/sudoku.SudokuSolver/SolveSudoku"
+	SudokuSolver_SolveSudokuConcurrently_FullMethodName = "/sudoku.SudokuSolver/SolveSudokuConcurrently"
 )
 
 // SudokuSolverClient is the client API for SudokuSolver service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SudokuSolverClient interface {
 	SolveSudoku(ctx context.Context, in *SudokuRequest, opts ...grpc.CallOption) (*SudokuResponse, error)
+	SolveSudokuConcurrently(ctx context.Context, in *SudokuRequest, opts ...grpc.CallOption) (*SudokuResponse, error)
 }
 
 type sudokuSolverClient struct {
@@ -47,11 +49,22 @@ func (c *sudokuSolverClient) SolveSudoku(ctx context.Context, in *SudokuRequest,
 	return out, nil
 }
 
+func (c *sudokuSolverClient) SolveSudokuConcurrently(ctx context.Context, in *SudokuRequest, opts ...grpc.CallOption) (*SudokuResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SudokuResponse)
+	err := c.cc.Invoke(ctx, SudokuSolver_SolveSudokuConcurrently_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SudokuSolverServer is the server API for SudokuSolver service.
 // All implementations must embed UnimplementedSudokuSolverServer
 // for forward compatibility
 type SudokuSolverServer interface {
 	SolveSudoku(context.Context, *SudokuRequest) (*SudokuResponse, error)
+	SolveSudokuConcurrently(context.Context, *SudokuRequest) (*SudokuResponse, error)
 	mustEmbedUnimplementedSudokuSolverServer()
 }
 
@@ -61,6 +74,9 @@ type UnimplementedSudokuSolverServer struct {
 
 func (UnimplementedSudokuSolverServer) SolveSudoku(context.Context, *SudokuRequest) (*SudokuResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SolveSudoku not implemented")
+}
+func (UnimplementedSudokuSolverServer) SolveSudokuConcurrently(context.Context, *SudokuRequest) (*SudokuResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SolveSudokuConcurrently not implemented")
 }
 func (UnimplementedSudokuSolverServer) mustEmbedUnimplementedSudokuSolverServer() {}
 
@@ -93,6 +109,24 @@ func _SudokuSolver_SolveSudoku_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SudokuSolver_SolveSudokuConcurrently_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SudokuRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SudokuSolverServer).SolveSudokuConcurrently(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SudokuSolver_SolveSudokuConcurrently_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SudokuSolverServer).SolveSudokuConcurrently(ctx, req.(*SudokuRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SudokuSolver_ServiceDesc is the grpc.ServiceDesc for SudokuSolver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,7 +138,11 @@ var SudokuSolver_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SolveSudoku",
 			Handler:    _SudokuSolver_SolveSudoku_Handler,
 		},
+		{
+			MethodName: "SolveSudokuConcurrently",
+			Handler:    _SudokuSolver_SolveSudokuConcurrently_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/sudoku.proto",
+	Metadata: "sudoku.proto",
 }

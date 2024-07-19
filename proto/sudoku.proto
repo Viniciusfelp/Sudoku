@@ -6,13 +6,18 @@ option go_package = "proto/sudoku";
 
 service SudokuSolver {
   rpc SolveSudoku (SudokuRequest) returns (SudokuResponse);
+  rpc SolveSudokuConcurrently (SudokuRequest) returns (SudokuResponse);
 }
 
 message SudokuRequest {
-  repeated int32 grid = 1;
+  repeated Row grid = 1;
+}
+
+message Row {
+  repeated int32 cells = 1;
 }
 
 message SudokuResponse {
-  repeated int32 solvedGrid = 1;
+  repeated Row solvedGrid = 1;
   bool success = 2;
 }
