@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"sudoku/utils"
+
 	"github.com/streadway/amqp"
 )
 
@@ -32,20 +33,24 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	sudokuRequest := utils.BuildSudokuRequest()
-	body, err := json.Marshal(sudokuRequest.Grid)
-	failOnError(err, "Failed to marshal JSON")
+	N := 100
 
-	err = ch.Publish(
-		"",
-		q.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        body,
-		})
-	failOnError(err, "Failed to publish a message")
+	for i := 0; i < N; i++ {
+		sudokuRequest := utils.BuildSudokuRequest()
+		body, err := json.Marshal(sudokuRequest.Grid)
+		failOnError(err, "Failed to marshal JSON")
 
-	log.Printf(" [x] Sent %s", body)
+		err = ch.Publish(
+			"",
+			q.Name,
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        body,
+			})
+		failOnError(err, "Failed to publish a message")
+
+		log.Printf(" [x] Sent message %d: %s", i+1, body)
+	}
 }

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"sudoku/utils"
+	"time"
+
 	"github.com/streadway/amqp"
 )
 
@@ -14,7 +16,7 @@ func failOnError(err error, msg string) {
 }
 
 func solveSudoku(grid *[utils.N][utils.N]int) bool {
-	return utils.SolveSudoku(grid)
+	return utils.SolveSudokuConcurrently(grid)
 }
 
 func main() {
@@ -50,7 +52,12 @@ func main() {
 	forever := make(chan bool)
 
 	go func() {
+		N := 100
+		count := 0
+		var processingTimes []time.Duration
+
 		for d := range msgs {
+			startTime := time.Now()
 			var grid [utils.N][utils.N]int
 			err := json.Unmarshal(d.Body, &grid)
 			failOnError(err, "Failed to unmarshal JSON")
@@ -62,7 +69,23 @@ func main() {
 			}
 
 			utils.PrintGrid(grid)
+
+			elapsedTime := time.Since(startTime)
+			processingTimes = append(processingTimes, elapsedTime)
+
+			count++
+			if count == N {
+				totalTime := time.Duration(0)
+				for _, t := range processingTimes {
+					totalTime += t
+				}
+				averageTime := totalTime / time.Duration(N)
+				log.Printf("Processed %d messages in total time %s", N, totalTime)
+				log.Printf("Average time per message: %s", averageTime)
+				break
+			}
 		}
+		forever <- true
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
